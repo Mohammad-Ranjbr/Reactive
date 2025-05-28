@@ -1,0 +1,292 @@
+Suppose you have written a simple Java program and run it with the following command:
+java -jar myapp.jar
+This loads your program (myapp.jar) into memory (RAM) and the operating system creates a process for it.
+
+📦 What is a process?
+A process is an active instance of your program that is running. For each program you run (e.g. Chrome, VSCode, Java App), the operating system creates a separate process.
+Each process:
+Has its own memory
+Contains program code, data, files, network, and things that the operating system allocates for it
+"Heavy" means that it is expensive for the system to create and delete
+📌 Each process can contain one or more threads
+
+🧵 What is a thread?
+A thread is a smaller part of a process that actually does things.
+Each process has at least one thread
+Multiple threads can be in a process at the same time and work together
+All threads share the process memory
+For example, the Chrome browser usually has dozens of threads: one to load the page, one to run JavaScript, one to play video, etc.
+🧠 Process = resource container
+🏃 Thread = execution unit (someone working in the container)
+
+⚙️ Now how do they run?
+The operating system has something called the Scheduler
+The Scheduler's job is to decide which thread should run on the CPU now and for how long.
+If we only have one CPU, the threads run in turn (one at a time)
+If we have multiple CPUs or multiple cores, multiple threads can run simultaneously
+❗ But because the number of threads is greater than the number of cores, the operating system constantly switches between threads. We call this Context Switching.
+
+📚 How does thread memory work?
+We have two important types of memory:
+Heap: Where large objects (like lists, hashmaps, etc.) are stored. It is shared between all threads.
+Stack: It is specific to each thread.
+In it, information about the methods that are being executed, local variables, etc. is stored.
+📌 Each thread has its own stack and usually in Java it takes up about 1MB or 2MB of memory, even if it does nothing.
+
+🧮 What is the problem? Why is this important?
+CPU is very expensive (both in terms of hardware and in cloud services like AWS)
+But when your Java application is waiting for a network response (e.g. an API request), the thread is idle and the CPU is idle
+To solve this, programmers usually create many threads, which in turn consumes a lot of memory
+🧠 So we need a way to perform network tasks efficiently without creating many threads
+
+✅ What is the problem?
+Our program sends a request to another server (for example, an API or a database).
+Now, until the response comes back, our thread can do nothing, so it remains idle.
+In microservices architecture, we usually have a lot of slow network calls. When we are waiting for a network response, the thread is idle and the CPU is not being used properly.
+⛔ That means:
+That thread is not doing anything on the CPU
+But it is occupying its own memory (stack memory)
+And it is still considered one of the program's resources
+
+🔧 The initial solution: creating more threads
+Programmers said:
+Well, if my thread is waiting for a network response, let's create another thread to do other things!
+For example:
+The first user sent a request → We created Thread-1
+It was waiting for a response → It became idle
+The second user came → We created Thread-2
+And so on...
+This is called Blocking I/O + Multithreading
+✅ Pros:
+Requests do not get stuck, because each one has a thread
+CPU can work with other threads when one is idle
+⛔ Cons:
+Each thread requires about 1MB of memory → RAM fills up quickly
+Context switching increases → The system slows down
+Creating and managing thousands of threads is very expensive and heavy
+
+🔁 What problem was solved?
+By increasing the number of threads:
+We allowed more requests to be handled simultaneously
+Because each thread was waiting for its own response and another thread could work
+Basically: CPU efficiency improved
+
+🚨 But what problem was fixed?
+A lot of RAM was consumed (for each thread's stack)
+System performance dropped due to context switching
+We may also reach operating system limits on the number of threads (for example, no more than 1000 or 2000)
+
+📦 Different types of I/O in programming
+✅ 1. Synchronous Blocking I/O
+Example:
+You call the insurance company. A voice message says "Please wait, all operators are busy". You have to wait for someone to answer.
+📌 In the world of programming:
+The program sends a request
+Until there is no response, the thread waits and does nothing else
+🧠 The simplest but most inefficient model for high loads
+
+✅ 2. Asynchronous I/O (non-synchronous, but may be blocking)
+Example:
+You tell your friend "I have work, please call the insurance company and follow up".
+Your friend waits, but you are free.
+📌 In programming:
+The main thread gives the task to another thread
+That thread waits (blocks)
+But the main thread is released
+🧠 You are released, but another thread is blocked
+This model is also known as "async but blocking"
+
+✅ 3. Non-blocking I/O (true non-blocking)
+Example:
+You call the insurance company, they say "Give me your number, we'll call you when we're ready".
+You give me your number and go about your life, they call you whenever they're ready.
+📌 In programming:
+The program sends the request
+The thread is immediately released
+When the response is ready, the system (OS) notifies it
+🧠 Very efficient, the thread does not wait at all
+
+✅ 4. Asynchronous + Non-blocking (non-synchronous and non-blocking with multiple threads)
+Example:
+Instead of calling yourself or your friend, you give your friend's number to the insurance company so that they call it themselves.
+Both you and your friend are free. But whenever the insurance company is ready, it calls your friend itself.
+📌 In programming:
+A thread sends the request and is released
+When the response is ready, another thread (not necessarily the first one) handles it
+🧠 This model combines the power of non-blocking and async, is very scalable and suitable for large systems
+
+Four communication patterns that Reactive easily supports
+Request → Single Response
+What we have been doing for years. (Also solved with Virtual Thread.)
+Request → Streaming Response
+You send a request, but you receive multiple messages in a row.
+Example: Real-time tracking of pizza delivery ("sent", "on the way", "1 km left"...).
+Streaming Request → Single Response
+You open a connection and send data continuously; at the end, you get a response or confirmation.
+Example: Smart watch that sends a heartbeat every second and the server gives a report at the end of the day.
+Bidirectional Streaming
+Both parties can send and receive messages at the same time; like a human conversation.
+Example: Voice/Video Chat, Online Gaming.
+🔑 Virtual Thread only solves the "high thread cost".
+🔑 In addition to solving thread overhead, Reactive also implements these three streaming patterns simply and optimally.
+
+Let's say you're writing a typical web application. A user makes a request (for example, asking for product information) and your program retrieves this information from a database or other service and returns a response. This is something we've all done for years, with the same old request → response model. In this case, using Virtual Threads is great.
+
+What is Virtual Thread?
+In the old model, each request required a separate thread. This thread could do nothing until a response came and would remain idle. Now, if you get a thousand requests, you need a thousand threads. This takes up a lot of memory and slows down the system.
+
+Virtual Threads solve this:
+It creates a lightweight thread that acts like a real thread but uses very little memory and is created and released quickly. This means that even with a thousand Virtual Threads, the system won't crash.
+
+So if your application has the same model of "make a request, wait for a response", Virtual Thread is enough and makes your work very convenient and efficient.
+
+But it's not always that simple.
+Suppose the user sends a request, but you are going to send him a message several times and at different intervals. For example, ordering a pizza:
+"Your order has been registered"
+"Pizza is cooking"
+"Sent"
+"Departure in 5 minutes"
+In this case, there is no longer one request and one response. Rather, one request has been sent, but several responses have to be returned at different times. This is called streaming response. And this is where Virtual Thread alone is not enough.
+
+Or another case:
+Suppose a smartwatch sends your heartbeat to the server every few seconds. This time you have an open connection and you are sending data. This becomes a streaming request.
+Or imagine you have a video call: you are both sending data and receiving data. This is called bidirectional streaming. That is, two-way, continuous, without interruption.
+Here the Virtual Thread model does not work anymore because it is just a tool for optimizing threads, but it does not solve the complex communication model for you.
+That is why when you need more complex and real-time communications, you go to Reactive Programming.
+
+Why Reactive Programming?
+Today, applications are much more complex than they used to be. People are not just sitting at their computers; they are using their mobile phones, smartwatches, TVs, etc. They are all connected to the internet and expect everything to happen quickly and instantly:
+If there is a message, they see it immediately.
+If something happens, they are notified without having to refresh or manually request it.
+In the traditional request-response model, you have to keep asking the server:
+"Do you have an update? Do you have an update?"
+And this is neither logical nor optimal.
+✅ Instead, the server should notify the user as soon as there are changes.
+✅ The server also wants to monitor the user's behavior in real time (for example, what movies they watch or what tweets they interact with), so the user needs to send information to the server continuously.
+This style of continuous, two-way communication is called streaming.
+
+What’s the solution?
+In 2014, companies like Netflix, Twitter, and Lightbend decided to define a standard for this type of communication. The standard was:
+
+📘 Reactive Streams Specification
+which aims to define a standard way to:
+non-blocking
+asynchronous
+stream processing
+and backpressure management
+Key concepts in Reactive Programming:
+Asynchronous: You start something, but you don’t wait for its result.
+Non-blocking: No part of the program locks or gets stuck.
+Backpressure: When the consumer can’t receive messages at full speed, it tells the sender to send a little slower.
+Stream Processing: Working with data continuously, not just once.
+
+So what is Reactive Programming?
+Reactive Programming is a new programming style that is designed to process data streams in a non-real-time and non-blocking manner. It can also handle backpressure.
+This model helps us implement today's complex, real-time communications more simply and efficiently.
+
+📌 Reactive Programming is built on the Observer pattern.
+Example: A social network like Twitter (now X)
+A famous actor (Publisher) tweets.
+I, who am his follower (Subscriber), see that tweet.
+If I also reply or repost that tweet, my followers (my Subscribers) will also see it.
+That is, “Following” = “Subscribe to changes/information” = Subscribe
+
+💡 A simpler example with Excel:
+The instructor gives a great example with Excel to explain Reactive:
+Scenario:
+We need to receive a string from an external service.
+Then:
+Calculate the length of the string.
+Multiply it by 2.
+Add 1 to the result.
+But we do this with an Excel formula:
+First cell (F5) = Server response.
+Second cell = =LEN(F5)
+Third cell = =F6*2
+Fourth cell = =F7+1
+As soon as the data reaches F5 (e.g. "Hello"), all subsequent cells are updated automatically and in real time.
+This means: Observe and React
+And this is exactly the logic behind Reactive Programming.
+
+📘 Reactive Streams Specification
+In this standard, four main concepts are introduced:
+Publisher
+A publisher of information (e.g. the famous actor in the Twitter example)
+Subscriber
+A follower who wants to receive data.
+Can request new information with the request() method.
+Can disconnect with the cancel() method.
+
+Subscription
+Models the relationship between Publisher and Subscriber.
+Includes data flow management (e.g. Backpressure).
+
+Processor
+Something that is both a Publisher and a Subscriber.
+In the Twitter example:
+I am a Subscriber because I follow the actor.
+And I am a Publisher because others follow me.
+So I am a Processor.
+🔄 Data can pass through multiple Processors along the way:
+Publisher → Processor → Processor → Subscriber
+
+📌 Most important point:
+These are just specifications, not libraries or ready-made code.
+Similar to JPA which is not code itself but Hibernate is its implementation.
+✅ What libraries follow Reactive Streams?
+RxJava
+Reactor ← 📌 We will use this library in this course.
+Akka Streams
+🔗 Why Reactor?
+Supported by the Spring team.
+Fully used in Spring WebFlux.
+Excellent database support (Postgres, MySQL, etc.)
+Compatible with Redis, Kafka, MongoDB, RabbitMQ, Elasticsearch, etc.
+
+Reactive Programming means “Observe and React” to data streams.
+Built on the Observer Pattern.
+It has a Publisher/Subscriber/Processor communication model.
+It follows the Reactive Streams specification.
+We use its popular implementation, Reactor.
+It is designed to work with asynchronous + non-blocking communications.
+
+🔹 Step 1: Publisher and Subscriber
+In this model, we have two main entities:
+Publisher: the source of data.
+Subscriber: the person who wants to receive that data.
+Publisher has a method called subscribe() that takes a Subscriber as input.
+That is, to start the connection, the Subscriber must introduce itself to the Publisher.
+
+🔹 Step 2: Receive Subscription
+When the Subscriber registers itself using the subscribe() method, the Publisher gives it a Subscription object in response.
+This is done through the onSubscribe(Subscription subscription) method in the Subscriber.
+That is, the Publisher delivers the Subscription to the Subscriber through this method.
+
+🔹 Step 3: Two-way communication through Subscription
+Now that this connection is established, the Subscriber can:
+Request n data from the Publisher using the request(n) method in the Subscription.
+Or, terminate the connection using cancel().
+Then all further interactions are done through the Subscription object.
+
+🔹 Step 4: Send data from Publisher to Subscriber
+Now that the Subscriber has requested n data, the Publisher:
+Sends the same number of, or fewer (but no more) data to the Subscriber via the onNext(item) method.
+If the Subscriber has requested 3 items, the Publisher must call onNext at most 3 times.
+Violating this rule (e.g. sending 4 items) is against the Reactive Streams contract.
+
+🔹 Step 5: Finish sending data - onComplete
+When the Publisher has no more data to send (or has sent all the data):
+It calls the onComplete() method to notify the Subscriber that it is finished.
+After that, the connection is broken and the Subscription is no longer usable.
+
+🔹 Step 6: Error occurs - onError
+If something goes wrong during processing:
+The Publisher notifies the Subscriber of the error using the onError(Throwable error) method.
+After onError, no more data is sent and the connection is disconnected.
+
+🧭 Key Rules in Reactive Programming
+Lazy Execution: Publisher does nothing until Subscriber makes a request.
+Respect Demand: Publisher only sends as much data as requested.
+Cancel Support: Subscriber can cancel() at any time.
+One Terminal Signal: Only one of onComplete() or onError() is called, not both.
+Multiple onNext(): onNext() can be executed zero, one, or more times (depending on the data and request).
