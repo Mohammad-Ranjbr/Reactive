@@ -10,10 +10,6 @@ public class SubscriberImpl implements Subscriber<String> {
     private Subscription subscription;
     private static final Logger log = LoggerFactory.getLogger(SubscriberImpl.class);
 
-    public Subscription getSubscription() {
-        return subscription;
-    }
-
     @Override
     public void onSubscribe(Subscription subscription) {
         this.subscription = subscription;
@@ -32,6 +28,10 @@ public class SubscriberImpl implements Subscriber<String> {
     @Override
     public void onComplete() {
         log.info("completed!");
+    }
+
+    public Subscription getSubscription() {
+        return subscription;
     }
 
 }
