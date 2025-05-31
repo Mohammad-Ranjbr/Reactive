@@ -290,3 +290,31 @@ Respect Demand: Publisher only sends as much data as requested.
 Cancel Support: Subscriber can cancel() at any time.
 One Terminal Signal: Only one of onComplete() or onError() is called, not both.
 Multiple onNext(): onNext() can be executed zero, one, or more times (depending on the data and request).
+
+Project Reactor: Implementing Reactive Streams in Java
+As mentioned:
+Reactive Streams is just a specification (like JPA).
+Project Reactor is one of its popular implementations (like Hibernate for JPA).
+Two main Publishers in Project Reactor:
+Mono → 0 or 1 item
+Flux → 0 to N items (possibly infinite)
+
+Important features of Mono:
+Publishes at most one item.
+It may not publish any item and just call onComplete().
+On error, onError(Throwable) is called.
+When it publishes an item, it immediately calls onComplete().
+If there is no data (e.g. DB result is null), only onComplete() is called.
+
+Important features of Flux:
+Can publish multiple items.
+It can also publish an infinite number of items (like a Bitcoin price stream).
+After all items have been sent, onComplete() is called.
+If an error occurs → onError(Throwable).
+
+Request (Backpressure)
+Subscriber says: "I'm ready to get X items." → request(n)
+Publisher only gives the same number.
+For Flux, this makes sense because there are multiple items.
+For Mono, it doesn't matter how many you request, it just publishes one item or none.
+
