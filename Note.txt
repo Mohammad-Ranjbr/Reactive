@@ -340,3 +340,15 @@ Better performance: lighter than Flux because it doesn't need to manage backpres
 No stream complexity: You don't need to work with sequential or mixed data.
 Can Flux be used everywhere? Yes, but it's more complex and expensive.
 
+In Java, a Functional Interface is an interface that has exactly one abstract method. This definition is important because it tells Java that this interface can be used as a target for lambda expressions or method references.
+Functional Interface Features:
+It has one abstract method (it can have default and static methods, but only one main abstract method).
+It can be specified that this interface is functional with the help of the @FunctionalInterface annotation (this annotation is optional but recommended).
+It can be used as a lambda expression.
+An abstract method is a method that only has a signature but no body or implementation. That is, it is defined in an interface or abstract class without writing any code inside it.
+public interface MyInterface {
+void doWork(); // This is an abstract method, only signature, no implementation
+}
+When we have a Functional Interface, it means there is exactly one abstract method like the one above.
+In Functional Interfaces, we only have this one abstract method that must be implemented by the class or initialized using a lambda expression.
+Default or static methods in an interface are not abstract methods because they have a body.
