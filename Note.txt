@@ -364,4 +364,27 @@ Mono.just(value) and Mono.fromSupplier() are inherently non-blocking
 But if you use something like sleep or a call to a database or HTTP inside Supplier, which is blocking, you will be blocked at the moment Supplier is executed.
 If the operation inside Supplier is time-consuming or has I/O (like HTTP or DB), Mono.Defer or reactive clients should be used.
 
+How Non-blocking IO and Event Loop work behind the scenes (High-level view):
+1. We have a Thread called Event Loop
+In our example, this thread is, for example, winNIO1.
+This thread is constantly looking at a queue of tasks (Task).
+2. Task Queue
+When we want to send multiple HTTP requests (for example, 100 product requests), all these requests are placed in this queue as a task.
+The Event Loop thread looks at this queue and starts executing them when it has a task.
+3. Sending requests (Outbound)
+The Event Loop picks up a task and sends the HTTP request to the server.
+Because the server responds late (for example, there is a 1 second delay), this thread does not wait.
+It immediately picks up the next task from the queue and sends the next request.
+This way, this thread sends 100 requests “simultaneously” (approximately).
+Like throwing 100 balls in the air at the same time.
+4. Receive responses (Inbound)
+When a response to a request is ready, the operating system (OS) notifies the thread that a response has arrived.
+These responses enter an inbound queue.
+This queue does not specify the order of the responses, and since responses may arrive in a different order (due to network latency and server processing), the order in which responses are received is different from the order in which they are sent.
+5. Process responses
+The Event Loop thread takes the responses from the inbound queue and sends them to a Reactive Stream (e.g. Mono or Flux) for subscribers to receive.
+Important points:
+A single thread (Event Loop) can send hundreds of simultaneous HTTP requests and handle the responses.
+There is no need to create hundreds of separate threads for each request.
+
 
