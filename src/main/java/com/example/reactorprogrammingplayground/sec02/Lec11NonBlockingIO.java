@@ -39,6 +39,12 @@ public class Lec11NonBlockingIO {
             client.getProductName(i)
                     .subscribe(Util.subscriber());
         }
+
+        for (int i=1; i <= 100; i++){
+            String name = client.getProductName(i)
+                    .block();
+            logger.info(name);
+        }
         Util.sleepSeconds(2);
 
     }

@@ -387,4 +387,18 @@ Important points:
 A single thread (Event Loop) can send hundreds of simultaneous HTTP requests and handle the responses.
 There is no need to create hundreds of separate threads for each request.
 
+Why shouldn't we use the block() method in Reactive Programming?
+1. What is block()?
+The block() method causes a Publisher (like Mono or Flux) to execute synchronously and return a real value.
+For example, if you have Mono<String>, you can use block() to receive the string directly and synchronously.
+This means that the current thread waits for the response and then continues.
+2. What is the problem with block()?
+Using block() causes the program to be blocked.
+That is, in the loop where you send requests, the loop waits for the first request to respond, then sends the second request and so on.
+So the requests are no longer sent in parallel and non-blocking.
+As a result, the main advantage of Reactive Programming, which is non-blocking and concurrency, is lost.
+3. When can we use block()?
+In unit tests, since concurrent and non-blocking execution is not important and the goal is only to get the result, using block() is not a problem.
+However, in production code, block() should not be used.
+
 
