@@ -19,4 +19,8 @@ public class Util {
         return faker;
     }
 
+    public static void sleepSeconds(int millis) throws InterruptedException {
+        Thread.sleep(millis * 1000L);
+    }
+
 }
