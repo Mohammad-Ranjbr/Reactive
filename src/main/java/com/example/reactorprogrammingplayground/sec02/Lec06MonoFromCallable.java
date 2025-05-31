@@ -7,8 +7,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public class Lec05MonoFromCallable {
-    private static final Logger logger = LoggerFactory.getLogger(Lec05MonoFromCallable.class);
+public class Lec06MonoFromCallable {
+    private static final Logger logger = LoggerFactory.getLogger(Lec06MonoFromCallable.class);
     public static void main(String[] args) {
 
         //Difference:

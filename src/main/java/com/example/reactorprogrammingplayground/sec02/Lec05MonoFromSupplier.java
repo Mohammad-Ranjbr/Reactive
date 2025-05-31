@@ -7,8 +7,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public class Lec06MonoFromSupplier {
-    private static final Logger logger = LoggerFactory.getLogger(Lec06MonoFromSupplier.class);
+public class Lec05MonoFromSupplier {
+    private static final Logger logger = LoggerFactory.getLogger(Lec05MonoFromSupplier.class);
     public static void main(String[] args) {
 
         var list = List.of(1, 2, 3);
