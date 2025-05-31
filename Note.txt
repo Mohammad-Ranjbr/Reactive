@@ -345,10 +345,23 @@ Functional Interface Features:
 It has one abstract method (it can have default and static methods, but only one main abstract method).
 It can be specified that this interface is functional with the help of the @FunctionalInterface annotation (this annotation is optional but recommended).
 It can be used as a lambda expression.
-An abstract method is a method that only has a signature but no body or implementation. That is, it is defined in an interface or abstract class without writing any code inside it.
+An abstract method is a method that only has a signature but nobody or implementation. That is, it is defined in an interface or abstract class without writing any code inside it.
 public interface MyInterface {
 void doWork(); // This is an abstract method, only signature, no implementation
 }
 When we have a Functional Interface, it means there is exactly one abstract method like the one above.
 In Functional Interfaces, we only have this one abstract method that must be implemented by the class or initialized using a lambda expression.
 Default or static methods in an interface are not abstract methods because they have a body.
+
+Main problem: IO operations (like HTTP requests)
+Can I use Mono.fromSupplier(() -> makeHttpCall())?
+Answer: No
+Because Supplier is a blocking method.
+HttpURLConnection, RestTemplate, JDBC, etc. are all synchronous and blocking and are not suitable for reactive.
+The right solution: Use a suitable driver/reactive client
+The Reactor Netty library can make HTTP calls non-blocking.
+Mono.just(value) and Mono.fromSupplier() are inherently non-blocking
+But if you use something like sleep or a call to a database or HTTP inside Supplier, which is blocking, you will be blocked at the moment Supplier is executed.
+If the operation inside Supplier is time-consuming or has I/O (like HTTP or DB), Mono.Defer or reactive clients should be used.
+
+
