@@ -339,3 +339,4 @@ Better readability: When you see Mono, you immediately understand that this func
 Better performance: lighter than Flux because it doesn't need to manage backpressure.
 No stream complexity: You don't need to work with sequential or mixed data.
 Can Flux be used everywhere? Yes, but it's more complex and expensive.
+
