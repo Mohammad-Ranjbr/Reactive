@@ -20,8 +20,7 @@ For example, the Chrome browser usually has dozens of threads: one to load the p
 🏃 Thread = execution unit (someone working in the container)
 
 ⚙️ Now how do they run?
-The operating system has something called the Scheduler
-The Scheduler's job is to decide which thread should run on the CPU now and for how long.
+The operating system has something called the Scheduler's job is to decide which thread should run on the CPU now and for how long.
 If we only have one CPU, the threads run in turn (one at a time)
 If we have multiple CPUs or multiple cores, multiple threads can run simultaneously
 ❗ But because the number of threads is greater than the number of cores, the operating system constantly switches between threads. We call this Context Switching.
@@ -149,7 +148,7 @@ Suppose the user sends a request, but you are going to send him a message severa
 In this case, there is no longer one request and one response. Rather, one request has been sent, but several responses have to be returned at different times. This is called streaming response. And this is where Virtual Thread alone is not enough.
 
 Or another case:
-Suppose a smartwatch sends your heartbeat to the server every few seconds. This time you have an open connection and you are sending data. This becomes a streaming request.
+Suppose a smartwatch sends your heartbeat to the server every few seconds. This time you have an open connection, and you are sending data. This becomes a streaming request.
 Or imagine you have a video call: you are both sending data and receiving data. This is called bidirectional streaming. That is, two-way, continuous, without interruption.
 Here the Virtual Thread model does not work anymore because it is just a tool for optimizing threads, but it does not solve the complex communication model for you.
 That is why when you need more complex and real-time communications, you go to Reactive Programming.
@@ -166,7 +165,7 @@ And this is neither logical nor optimal.
 This style of continuous, two-way communication is called streaming.
 
 What’s the solution?
-In 2014, companies like Netflix, Twitter, and Lightbend decided to define a standard for this type of communication. The standard was:
+In 2014, companies like Netflix, Twitter, and Lighten decided to define a standard for this type of communication. The standard was:
 
 📘 Reactive Streams Specification
 which aims to define a standard way to:
@@ -318,3 +317,25 @@ Publisher only gives the same number.
 For Flux, this makes sense because there are multiple items.
 For Mono, it doesn't matter how many you request, it just publishes one item or none.
 
+Why do we still need Mono when we have Flux?
+✳️ Simple answer: Simplicity and suitability for single-value scenarios
+
+🎯 Differences in usage:
+🟢 When you only expect one item → use Mono.
+Example:
+Mono<Customer> customerMono = customerRepository.findById(123L);
+If ID exists → one item (onNext + onComplete)
+If not → only onComplete
+If error occurs → onError
+
+When you expect multiple items or data streams → use Flux.
+Example:
+Flux<Customer> customersFlux = customerRepository.findByFirstName("Ali");
+There may be no items or multiple items.
+It may continue indefinitely (in some cases).
+
+⚙️ Why is Mono better when we only want one result?
+Better readability: When you see Mono, you immediately understand that this function has only one output.
+Better performance: lighter than Flux because it doesn't need to manage backpressure.
+No stream complexity: You don't need to work with sequential or mixed data.
+Can Flux be used everywhere? Yes, but it's more complex and expensive.
