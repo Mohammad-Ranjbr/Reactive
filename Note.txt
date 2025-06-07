@@ -373,7 +373,7 @@ When we want to send multiple HTTP requests (for example, 100 product requests),
 The Event Loop thread looks at this queue and starts executing them when it has a task.
 3. Sending requests (Outbound)
 The Event Loop picks up a task and sends the HTTP request to the server.
-Because the server responds late (for example, there is a 1 second delay), this thread does not wait.
+Because the server responds late (for example, there is a 1-second delay), this thread does not wait.
 It immediately picks up the next task from the queue and sends the next request.
 This way, this thread sends 100 requests “simultaneously” (approximately).
 Like throwing 100 balls in the air at the same time.
@@ -401,4 +401,15 @@ As a result, the main advantage of Reactive Programming, which is non-blocking a
 In unit tests, since concurrent and non-blocking execution is not important and the goal is only to get the result, using block() is not a problem.
 However, in production code, block() should not be used.
 
+In Java, when we use List or Set, we are working with structures that store data in memory. That is,
+when you have a List of numbers, all those numbers are already in memory ,and you can access them whenever you want.
+Now let's look at reactive concepts like Mono and Flux. Unlike traditional structures, these do not store any data themselves.
+In fact, you can think of them as a tunnel or pipe that data enters from one side and exits from the other. This pipe only transfers data, not stores it.
+
+For example, if we use Flux to get data from a sensor that sends the temperature every few seconds, that data is not stored in Flux.
+Only when new data comes from the sensor, Flux passes it ,and you receive it on the subscriber side.
+A very simple analogy:
+Suppose you have a water tank. You pour water into it ,and then you take it out with a container whenever you want. This is like a List or Set that holds data.
+Now suppose you have a water hose that is directly connected to a water source. When you turn on the tap,
+water flows in from one side and out from the other without being stored anywhere. The hose itself does not store anything, it just transfers water. This is the behavior of Flux or Mono.
 

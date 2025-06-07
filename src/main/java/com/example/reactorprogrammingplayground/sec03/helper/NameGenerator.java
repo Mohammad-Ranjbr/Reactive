@@ -10,7 +10,7 @@ public class NameGenerator {
 
     //Weaknesses of the traditional style:
     //All names are generated at once.
-    //If each name takes one second to generate and we want 10 names, we will be blocked for 10 seconds.
+    //If each name takes one second to generate, and we want 10 names, we will be blocked for 10 seconds.
     //We do not see any output during execution, only the complete list comes at the end.
     //We cannot stop the generation in the middle.
     public static List<String> getNamesList(int count){
