@@ -10,6 +10,12 @@ public class Lec04FluxCreateDownStreamDemand {
     private static final Logger logger = LoggerFactory.getLogger(Lec04FluxCreateDownStreamDemand.class);
     public static void main(String[] args) throws InterruptedException {
 
+        produceOnDemand();
+
+    }
+
+    private static void produceOnEarly() throws InterruptedException {
+
         //When you use Flux.create() and generate data inside it, for example with sink.next(...), that data is generated immediately, regardless of the subscriber's need or request.
         //Even if the subscriber has not made any requests (i.e., does not request() ), all data is still generated immediately and placed in a queue.
         //Sometimes it's good:
@@ -46,4 +52,30 @@ public class Lec04FluxCreateDownStreamDemand {
         subscriber.getSubscription().cancel();
 
     }
+
+    private static void produceOnDemand() throws InterruptedException {
+        // In this case, production is only performed when the consumer explicitly requests it (request(n)).
+        //Advantage:
+        //Produce exactly as needed
+        //Support backpressure effectively
+        var subscriber = new SubscriberImpl();
+        Flux.<String>create(fluxSink -> {
+            fluxSink.onRequest(request -> {
+                for (var i = 0; i < request && !fluxSink.isCancelled(); i++) {
+                    var name = Util.faker().name().firstName();
+                    logger.info("generated: {}", name);
+                    fluxSink.next(name);
+                }
+            });
+        }).subscribe(subscriber);
+
+        Util.sleepSeconds(2);
+        subscriber.getSubscription().request(2);
+        Util.sleepSeconds(2);
+        subscriber.getSubscription().request(2);
+        Util.sleepSeconds(2);
+        subscriber.getSubscription().cancel();
+
+    }
+
 }
