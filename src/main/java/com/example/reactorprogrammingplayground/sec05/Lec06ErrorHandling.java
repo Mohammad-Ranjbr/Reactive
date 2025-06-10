@@ -68,6 +68,10 @@ public class Lec06ErrorHandling {
     }
 
     private static void onErrorContinue(){
+        //Default problem:
+        //In reactive programming when an error occurs (onError): the entire flow stops and none of the subsequent elements are processed.
+        //onErrorContinue(): This operator allows you to ignore the error and continue if one of the elements causes an error during processing.
+        //Only applicable for Flux (because it has multiple elements)
         Flux.range(1, 10)
                 .map(i -> i == 5 ? 5 / 0 : i)
                 .onErrorContinue(
