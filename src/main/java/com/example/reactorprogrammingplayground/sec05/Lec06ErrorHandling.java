@@ -1,15 +1,13 @@
 package com.example.reactorprogrammingplayground.sec05;
 
 import com.example.reactorprogrammingplayground.common.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class Lec06ErrorHandling {
-    private static final Logger log = LoggerFactory.getLogger(Lec06ErrorHandling.class);
     public static void main(String[] args) {
 
-        onErrorComplete();
+        onErrorContinue();
 
     }
 
@@ -40,7 +38,7 @@ public class Lec06ErrorHandling {
         return Mono.fromSupplier(() -> Util.faker().random().nextInt(100, 1000));
     }
 
-    private static void demo1(){
+    private static void onErrorResume1(){
         Mono.error(new ArithmeticException("oops"))
                 .onErrorResume(ArithmeticException.class, ex -> fallback1())
                 .onErrorResume(ex -> fallback2())
@@ -48,7 +46,7 @@ public class Lec06ErrorHandling {
                 .subscribe(Util.subscriber());
     }
 
-    private static void demo2(){
+    private static void onErrorResume2(){
         Mono.error(new RuntimeException("oops"))
                 .onErrorResume(ArithmeticException.class, ex -> fallback1())
                 .onErrorResume(ex -> fallback2())
@@ -66,6 +64,15 @@ public class Lec06ErrorHandling {
         //This operator suppresses the error and instead sends the onComplete signal to the subscriber.
         Mono.error(new RuntimeException("oops"))
                 .onErrorComplete()
+                .subscribe(Util.subscriber());
+    }
+
+    private static void onErrorContinue(){
+        Flux.range(1, 10)
+                .map(i -> i == 5 ? 5 / 0 : i)
+                .onErrorContinue(
+                        (ex, obj) -> System.out.println(ex + " -> " + obj)
+                )
                 .subscribe(Util.subscriber());
     }
 
