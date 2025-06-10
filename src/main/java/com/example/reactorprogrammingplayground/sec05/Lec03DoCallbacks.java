@@ -22,6 +22,18 @@ public class Lec03DoCallbacks {
         //doOnDiscard : If the produced item is not received (e.g. due to take) you can check for missing items
         //doFinally : At the end of any state: complete, error, cancel (always runs last method)
 
+        //Is it okay to use doOnNext() to change the value of an object (mutation)?
+        //Yes, mutation is fine if it is used in a logical and appropriate way.
+        //In the real world, especially in Java applications, you usually work with mutable objects such as database entities.
+        //So changing their values (e.g. customer.setAge(10)) is quite normal.
+        //Why do you use doOnNext()?
+        //Since you haven't got the data yet, you can't change its value directly.
+        //So when Mono or Flux publishes the item, you can use doOnNext() to change the value (e.g. setAge).
+        //Project Reactor guarantees thread-safety
+        //When you use doOnNext() for mutation, Reactor guarantees that the same thread is responsible for executing your code.
+        //That is, changes to the same entity cannot be made by multiple threads.
+        //This makes your mutation safe.
+
         Flux.<Integer>create(fluxSink -> {
             log.info("produce begins");
             for(int i = 0; i <= 4; i++) {
