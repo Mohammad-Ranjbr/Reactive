@@ -9,7 +9,7 @@ public class Lec06ErrorHandling {
     private static final Logger log = LoggerFactory.getLogger(Lec06ErrorHandling.class);
     public static void main(String[] args) {
 
-        demo2();
+        onErrorComplete();
 
     }
 
@@ -53,6 +53,19 @@ public class Lec06ErrorHandling {
                 .onErrorResume(ArithmeticException.class, ex -> fallback1())
                 .onErrorResume(ex -> fallback2())
                 .onErrorReturn(-5)
+                .subscribe(Util.subscriber());
+    }
+
+    private static void onErrorComplete(){
+        //You don't want to:
+        //Provide a fixed fallback value (onErrorReturn),
+        //or use an alternative publisher (onErrorResume).
+        //You want to: If an error occurs, instead of throwing an exception, just complete the stream (complete)
+        //and let the subscriber think everything completed correctly, even if it didn't receive any data.
+        //The solution: onErrorComplete()
+        //This operator suppresses the error and instead sends the onComplete signal to the subscriber.
+        Mono.error(new RuntimeException("oops"))
+                .onErrorComplete()
                 .subscribe(Util.subscriber());
     }
 
